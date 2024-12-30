@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { FloatingNav } from "./floating-navbar";
 import { Home, BarChart, Cloud, Map, GitCompare, Lightbulb } from 'lucide-react';
 import { FloatingDock } from "./floating-dock";
 
@@ -41,7 +40,8 @@ const navItems = [
 export default function Navigation() {
   return (
     <div className="relative w-full">
-      <FloatingDock items={navItems}/>
+     <FloatingDock items={navItems} collapsible={true} desktopClassName="fixed  bottom-4 scale-75 hover:scale-100  transform -translate-x-1/2" mobileClassName="fixed bottom-4 right-4" />
+      
     </div>
   );
 }

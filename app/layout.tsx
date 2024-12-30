@@ -18,15 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main className="p-4 pt-20">{children}</main>
-        <div className="fixed bottom-4 sm:left-1/2 transform -translate-x-1/2 right-2">
-          <div className="group relative flex items-center justify-center">
-            <div className="transition-all duration-300 scale-75 group-hover:scale-100">
-              <Navigation />
-            </div>
-          </div>
-        </div>
+        
+        <main className="p-4">{children}</main>
+        <Navigation />
       </body>
     </html>
   );
 }
+
