@@ -84,9 +84,14 @@ export default function ElectricityDemandChart({ date }: ElectricityDemandChartP
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={data}>
+          <LineChart data={data} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="hour" tickFormatter={(value) => `${value}:00`} />
+            <XAxis
+              dataKey="hour"
+              tickFormatter={(value) => `${value}:00`}
+              interval="preserveStartEnd"
+              minTickGap={20}
+            />
             <YAxis />
             <Tooltip formatter={(value: number | null) => (value === null ? "N/A" : `${value.toFixed(2)} MW`)} />
             <Legend />

@@ -129,13 +129,13 @@ export default function InsightsPanel({ date }: InsightsPanelProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="summary" className="w-full">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="summary">Summary</TabsTrigger>
-            <TabsTrigger value="hourly">Hourly Demand</TabsTrigger>
-            <TabsTrigger value="zoneWise">Zone-wise Breakdown</TabsTrigger>
+            <TabsTrigger value="hourly">Hourly</TabsTrigger>
+            <TabsTrigger value="zoneWise">Zone-wise</TabsTrigger>
           </TabsList>
           <TabsContent value="summary">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <h3 className="text-lg font-semibold">Total Daily Demand</h3>
                 <p className="text-2xl font-bold">{getTotalDailyDemand()} MWh</p>
@@ -153,10 +153,15 @@ export default function InsightsPanel({ date }: InsightsPanelProps) {
             </div>
           </TabsContent>
           <TabsContent value="hourly">
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={data}>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={data} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="hour" tickFormatter={(value) => `${value}:00`} />
+                <XAxis
+                  dataKey="hour"
+                  tickFormatter={(value) => `${value}:00`}
+                  interval="preserveStartEnd"
+                  minTickGap={20}
+                />
                 <YAxis />
                 <Tooltip formatter={(value: number | null) => (value === null ? "N/A" : `${value.toFixed(2)} MW`)} />
                 <Legend />
@@ -165,8 +170,8 @@ export default function InsightsPanel({ date }: InsightsPanelProps) {
             </ResponsiveContainer>
           </TabsContent>
           <TabsContent value="zoneWise">
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={getZoneWiseBreakdown()}>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={getZoneWiseBreakdown()} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="zone" />
                 <YAxis />
