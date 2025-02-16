@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { format } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -15,77 +16,111 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts"
+import { ChartSkeleton } from "./loading-skeleton"
+import { ErrorMessage } from "./error-message"
 
 type PredictionData = {
   hour: number
   prediction: number[][]
 }
 
-type InsightData = {
+interface InsightData {
   hour: number
-  BRPL: number
-  BYPL: number
-  NDPL: number
-  NDMC: number
-  MES: number
-  total: number
+  BRPL: number | null
+  BYPL: number | null
+  NDPL: number | null
+  NDMC: number | null
+  MES: number | null
+  total: number | null
 }
 
-const zoneColors = {
-  BRPL: "#3b82f6",
-  BYPL: "#f97316",
-  NDPL: "#22c55e",
-  NDMC: "#ef4444",
-  MES: "#6b7280",
+interface InsightsPanelProps {
+  date: Date
 }
 
-export default function InsightsPanel() {
+export default function InsightsPanel({ date }: InsightsPanelProps) {
   const [data, setData] = useState<InsightData[]>([])
-  const [selectedZone, setSelectedZone] = useState<string>("all")
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const formattedDate = format(date, "yyyy-MM-dd")
+      const response = await fetch(`http://127.0.0.1:8000/predict?date=${formattedDate}`, {
+        headers: {
+          Accept: "application/json",
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const json = await response.json()
+
+      // Safely transform and validate data
+      const predictions = json?.predictions ?? []
+      const processedData = predictions.map((item: PredictionData) => {
+        const predictionValues = item?.prediction?.[0] ?? []
+        return {
+          hour: item?.hour ?? 0,
+          BRPL: predictionValues[0] ?? null,
+          BYPL: predictionValues[1] ?? null,
+          NDPL: predictionValues[2] ?? null,
+          NDMC: predictionValues[3] ?? null,
+          MES: predictionValues[4] ?? null,
+          total: predictionValues.reduce((a: number, b: number | null) => a + (b ?? 0), 0),
+        }
+      })
+
+      setData(processedData)
+    } catch (err) {
+      console.error("Error fetching prediction data:", err)
+      setError(err instanceof Error ? err.message : "Failed to fetch prediction data")
+      setData([])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [date])
 
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch("http://127.0.0.1:8000/predict?date=2025-02-16")
-      const json = await res.json()
-      const processedData = processData(json.predictions)
-      setData(processedData)
-    }
     fetchData()
-  }, [])
-
-  const processData = (predictions: PredictionData[]): InsightData[] => {
-    return predictions.map((item) => ({
-      hour: item.hour,
-      BRPL: item.prediction[0][0],
-      BYPL: item.prediction[0][1],
-      NDPL: item.prediction[0][2],
-      NDMC: item.prediction[0][3],
-      MES: item.prediction[0][4],
-      total: item.prediction[0].reduce((a, b) => a + b, 0),
-    }))
-  }
+  }, [fetchData])
 
   const getTotalDailyDemand = () => {
-    return data.reduce((sum, item) => sum + item.total, 0).toFixed(2)
+    return data.reduce((sum, item) => sum + (item.total ?? 0), 0).toFixed(2)
   }
 
   const getPeakDemand = () => {
-    const peak = data.reduce((max, item) => (item.total > max.total ? item : max), data[0])
-    return { hour: peak.hour, demand: peak.total.toFixed(2) }
+    const peak = data.reduce(
+      (max, item) => ((item.total ?? 0) > (max.total ?? 0) ? item : max),
+      data[0] ?? { hour: 0, total: 0 },
+    )
+    return { hour: peak.hour, demand: peak.total?.toFixed(2) ?? "N/A" }
   }
 
   const getOffPeakDemand = () => {
-    const offPeak = data.reduce((min, item) => (item.total < min.total ? item : min), data[0])
-    return { hour: offPeak.hour, demand: offPeak.total.toFixed(2) }
+    const offPeak = data.reduce(
+      (min, item) => ((item.total ?? Number.POSITIVE_INFINITY) < (min.total ?? Number.POSITIVE_INFINITY) ? item : min),
+      data[0] ?? { hour: 0, total: Number.POSITIVE_INFINITY },
+    )
+    return { hour: offPeak.hour, demand: offPeak.total?.toFixed(2) ?? "N/A" }
   }
 
   const getZoneWiseBreakdown = () => {
-    const zones = ["BRPL", "BYPL", "NDPL", "NDMC", "MES"]
+    const zones = ["BRPL", "BYPL", "NDPL", "NDMC", "MES"] as const
     return zones.map((zone) => ({
       zone,
-      total: data.reduce((sum, item) => sum + item[zone as keyof InsightData], 0).toFixed(2),
+      total: data.reduce((sum, item) => sum + (item[zone] ?? 0), 0).toFixed(2),
     }))
   }
+
+  if (isLoading) return <ChartSkeleton />
+  if (error) return <ErrorMessage message={error} onRetry={fetchData} />
+  if (!data.length) return <ErrorMessage message="No data available for the selected date" />
 
   return (
     <Card className="w-full mt-8">
@@ -121,11 +156,11 @@ export default function InsightsPanel() {
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="hour" />
+                <XAxis dataKey="hour" tickFormatter={(value) => `${value}:00`} />
                 <YAxis />
-                <Tooltip />
+                <Tooltip formatter={(value: number | null) => (value === null ? "N/A" : `${value.toFixed(2)} MW`)} />
                 <Legend />
-                <Line type="monotone" dataKey="total" stroke="#8884d8" name="Total Demand" />
+                <Line type="monotone" dataKey="total" stroke="#8884d8" name="Total Demand" connectNulls />
               </LineChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -135,7 +170,7 @@ export default function InsightsPanel() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="zone" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip formatter={(value) => `${value} MWh`} />
                 <Legend />
                 <Bar dataKey="total" fill="#8884d8" />
               </BarChart>
