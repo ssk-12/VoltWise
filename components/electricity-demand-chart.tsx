@@ -36,7 +36,7 @@ export default function ElectricityDemandChart({ date }: ElectricityDemandChartP
 
     try {
       const formattedDate = format(date, "yyyy-MM-dd")
-      const response = await fetch(`http://127.0.0.1:8000/predict?date=${formattedDate}`, {
+      const response = await fetch(`https://volt-wise-api.onrender.com/predict?date=${formattedDate}`, {
         headers: {
           Accept: "application/json",
         },

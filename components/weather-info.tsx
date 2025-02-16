@@ -34,7 +34,7 @@ export default function WeatherInfo({ date }: WeatherInfoProps) {
     try {
       const formattedDate = format(date, "yyyy-MM-dd")
       const response = await fetch(
-        `https://d.meteostat.net/app/proxy/stations/hourly?station=42182&tz=Asia/Kolkata&start=${formattedDate}&end=${formattedDate}`,
+        `https://volt-wise-api.onrender.com/weather?date=${formattedDate}`,
         {
           headers: {
             Accept: "application/json",
