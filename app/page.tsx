@@ -7,6 +7,7 @@ import DatePicker from "@/components/date-picker"
 import DistributorInfo from "@/components/distributor-info"
 import InsightsPanel from "@/components/insights-panel"
 import PredictionTable from "@/components/prediction-table"
+import IndustrialZonesInfo from "@/components/industrial-zones-info"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ScrollToTop } from "@/components/scroll-to-top"
 
@@ -27,6 +28,9 @@ export default function Home() {
           <PredictionTable date={selectedDate} />
         </div>
         <InsightsPanel date={selectedDate} />
+        <div className="my-6">
+          <IndustrialZonesInfo />
+        </div>
         <DistributorInfo />
       </div>
       <ScrollToTop />
