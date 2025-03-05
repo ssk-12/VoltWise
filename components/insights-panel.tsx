@@ -42,6 +42,7 @@ export default function InsightsPanel({ date }: InsightsPanelProps) {
   const [data, setData] = useState<InsightData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [maxZoneValue, setMaxZoneValue] = useState<number>(0)
 
   const fetchData = useCallback(async () => {
     setIsLoading(true)
@@ -77,6 +78,11 @@ export default function InsightsPanel({ date }: InsightsPanelProps) {
       })
 
       setData(processedData)
+
+      // Calculate max zone value for Y-axis scaling
+      const zoneWiseData = getZoneWiseBreakdown(processedData)
+      const maxValue = Math.max(...zoneWiseData.map((item) => Number.parseFloat(item.total)))
+      setMaxZoneValue(maxValue)
     } catch (err) {
       console.error("Error fetching prediction data:", err)
       setError(err instanceof Error ? err.message : "Failed to fetch prediction data")
@@ -110,11 +116,11 @@ export default function InsightsPanel({ date }: InsightsPanelProps) {
     return { hour: offPeak.hour, demand: offPeak.total?.toFixed(2) ?? "N/A" }
   }
 
-  const getZoneWiseBreakdown = () => {
+  const getZoneWiseBreakdown = (dataSource = data) => {
     const zones = ["BRPL", "BYPL", "NDPL", "NDMC", "MES"] as const
     return zones.map((zone) => ({
       zone,
-      total: data.reduce((sum, item) => sum + (item[zone] ?? 0), 0).toFixed(2),
+      total: dataSource.reduce((sum, item) => sum + (item[zone] ?? 0), 0).toFixed(2),
     }))
   }
 
@@ -174,7 +180,10 @@ export default function InsightsPanel({ date }: InsightsPanelProps) {
               <BarChart data={getZoneWiseBreakdown()} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="zone" />
-                <YAxis />
+                <YAxis
+                  domain={[0, maxZoneValue * 1.1]} // Set domain from 0 to 110% of max value for some padding
+                  tickFormatter={(value) => `${Math.round(value)}`}
+                />
                 <Tooltip formatter={(value) => `${value} MWh`} />
                 <Legend />
                 <Bar dataKey="total" fill="#8884d8" />

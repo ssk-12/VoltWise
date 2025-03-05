@@ -6,6 +6,7 @@ import WeatherInfo from "@/components/weather-info"
 import DatePicker from "@/components/date-picker"
 import DistributorInfo from "@/components/distributor-info"
 import InsightsPanel from "@/components/insights-panel"
+import PredictionTable from "@/components/prediction-table"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ScrollToTop } from "@/components/scroll-to-top"
 
@@ -22,6 +23,9 @@ export default function Home() {
         </div>
         <WeatherInfo date={selectedDate} />
         <ElectricityDemandChart date={selectedDate} />
+        <div className="my-6">
+          <PredictionTable date={selectedDate} />
+        </div>
         <InsightsPanel date={selectedDate} />
         <DistributorInfo />
       </div>
