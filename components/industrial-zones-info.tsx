@@ -112,9 +112,12 @@ export default function IndustrialZonesInfo() {
                     <Cell
                       key={`cell-${index}`}
                       fill={
-                        ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))"][
-                          index % 4
-                        ]
+                        [
+                          "#3b82f6", // blue
+                          "#10b981", // green
+                          "#f59e0b", // amber
+                          "#ef4444", // red
+                        ][index % 4]
                       }
                     />
                   ))}
