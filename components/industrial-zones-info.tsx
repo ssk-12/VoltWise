@@ -15,6 +15,8 @@ import {
   CartesianGrid,
 } from "recharts"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Building2, Map, Users } from "lucide-react"
+import { TrendingUp } from "lucide-react"
 
 const industrialZones = [
   {
@@ -180,28 +182,40 @@ const totalPopulation = populationData.reduce((sum, item) => sum + item.populati
 
 export default function IndustrialZonesInfo() {
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Delhi Distribution Analysis</CardTitle>
-        <CardDescription>Industrial zones, electricity distributors, and population distribution</CardDescription>
+    <Card className="w-full shadow-lg rounded-lg overflow-hidden">
+      <CardHeader className="bg-black text-white p-6">
+        <CardTitle className="text-2xl font-bold flex space-x-2 justify-between"><div className="flex space-x-2 flex-rows"><p><TrendingUp className="w-8 h-8 text-blue-500 font-bold" /></p> <p>Delhi Distribution Analysis </p> </div>
+        <div className="flex space-x-4">
+                <div className="bg-white/20 p-3 rounded-full">
+                  <Building2 className="text-white" size={24} />
+                </div>
+                <div className="bg-white/20 p-3 rounded-full">
+                  <Map className="text-white" size={24} />
+                </div>
+                <div className="bg-white/20 p-3 rounded-full">
+                  <Users className="text-white" size={24} />
+                </div>
+              </div>
+        </CardTitle>
+        <CardDescription className="text-lg">Industrial Zones, Electricity Distributors, and Population Distribution</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <Tabs defaultValue="industrial">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="industrial">Industrial Zones</TabsTrigger>
-            <TabsTrigger value="distributors">Electricity Distributors</TabsTrigger>
-            <TabsTrigger value="population">Population Distribution</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-600 rounded-lg overflow-hidden">
+            <TabsTrigger value="industrial" className="pb-4 hover:bg-blue-100 font-bold">Industrial Zones</TabsTrigger>
+            <TabsTrigger value="distributors" className="pb-4 hover:bg-green-100 font-bold">Electricity Distributors</TabsTrigger>
+            <TabsTrigger value="population" className="pb-4 hover:bg-yellow-100 font-bold">Population Distribution</TabsTrigger>
           </TabsList>
 
           <TabsContent value="industrial">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 {industrialZones.map((zone) => (
-                  <div key={zone.name} className="space-y-2">
-                    <h3 className="text-lg font-semibold">
+                  <div key={zone.name} className="space-y-2 p-4 border rounded-lg shadow-sm">
+                    <h3 className="text-lg font-semibold text-blue-600">
                       {zone.name} ({zone.count} areas) - Served by {zone.distributor}:
                     </h3>
-                    <ul className="list-disc pl-5 space-y-1">
+                    <ul className="list-disc pl-5 space-y-1 text-gray-700">
                       {zone.areas.map((area, index) => (
                         <li key={`${zone.name}-${index}`} className="text-sm">
                           {area}
@@ -211,7 +225,7 @@ export default function IndustrialZonesInfo() {
                   </div>
                 ))}
               </div>
-              <div className="h-[400px] flex flex-col items-center justify-center">
+              <div className="h-[400px] flex flex-col items-center justify-center bg-gray-50 rounded-lg shadow-inner">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -263,17 +277,17 @@ export default function IndustrialZonesInfo() {
                   {distributors.map((distributor) => (
                     <div
                       key={distributor.name}
-                      className="p-4 border rounded-lg"
+                      className="p-4 border rounded-lg shadow-sm"
                       style={{ borderLeftColor: distributor.color, borderLeftWidth: "4px" }}
                     >
-                      <h3 className="text-lg font-semibold">
+                      <h3 className="text-lg font-semibold text-green-600">
                         {distributor.name} - {distributor.fullName}
                       </h3>
-                      <p className="text-sm">Service Area: {distributor.areas}</p>
+                      <p className="text-sm text-gray-700">Service Area: {distributor.areas}</p>
                     </div>
                   ))}
                 </div>
-                <div className="h-[400px] flex flex-col items-center justify-center">
+                <div className="h-[400px] flex flex-col items-center justify-center bg-gray-50 rounded-lg shadow-inner">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -317,7 +331,7 @@ export default function IndustrialZonesInfo() {
                   </ResponsiveContainer>
                 </div>
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-gray-500">
                 <p>Population distribution by electricity distributor service areas based on 2011 Census data.</p>
               </div>
             </div>
@@ -325,7 +339,7 @@ export default function IndustrialZonesInfo() {
 
           <TabsContent value="population">
             <div className="space-y-6">
-              <div className="h-[400px]">
+              <div className="h-[400px] bg-gray-50 rounded-lg shadow-inner">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={populationChartData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -365,20 +379,20 @@ export default function IndustrialZonesInfo() {
                   const populationInMillions = (totalPopulation / 1000000).toFixed(2)
 
                   return (
-                    <Card key={distributor.name} className="overflow-hidden">
+                    <Card key={distributor.name} className="overflow-hidden shadow-lg">
                       <div className="h-2" style={{ backgroundColor: distributor.color }}></div>
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-base">
+                        <CardTitle className="text-base text-purple-600">
                           {distributor.name} - {distributor.fullName}
                         </CardTitle>
-                        <CardDescription>Serves {distributor.areas}</CardDescription>
+                        <CardDescription className="text-gray-700">Serves {distributor.areas}</CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-2xl font-bold">{populationInMillions} million</p>
-                        <p className="text-sm text-muted-foreground">Total population served</p>
+                        <p className="text-2xl font-bold text-gray-800">{populationInMillions} million</p>
+                        <p className="text-sm text-gray-500">Total population served</p>
                         <div className="mt-2">
-                          <p className="text-sm font-medium">Districts:</p>
-                          <ul className="list-disc pl-5 text-sm">
+                          <p className="text-sm font-medium text-gray-700">Districts:</p>
+                          <ul className="list-disc pl-5 text-sm text-gray-600">
                             {districts.map((district) => (
                               <li key={district.district}>
                                 {district.district}: {(district.population / 1000000).toFixed(2)} million
@@ -391,7 +405,7 @@ export default function IndustrialZonesInfo() {
                   )
                 })}
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-gray-500">
                 <p>Population data based on the 2011 Census for Delhi districts.</p>
               </div>
             </div>
@@ -401,4 +415,3 @@ export default function IndustrialZonesInfo() {
     </Card>
   )
 }
-
