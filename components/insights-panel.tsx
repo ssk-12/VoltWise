@@ -2,6 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { format } from "date-fns"
+import { 
+  BoltIcon, 
+  ChartBarIcon, 
+  ClockIcon, 
+  CloudIcon, 
+  MapPinIcon 
+} from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -129,64 +136,107 @@ export default function InsightsPanel({ date }: InsightsPanelProps) {
   if (!data.length) return <ErrorMessage message="No data available for the selected date" />
 
   return (
-    <Card className="w-full mt-8">
-      <CardHeader>
-        <CardTitle>Electricity Demand Insights</CardTitle>
+    <Card className="w-full mt-8 text-white border-gray-700 shadow-2xl">
+      <CardHeader className="border-b border-gray-700 pb-4 bg-gray-800 text-white ">
+        <div className="flex items-center space-x-4">
+          <BoltIcon className="w-8 h-8 text-blue-400" />
+          <CardTitle className="text-2xl font-bold text-white">Electricity Demand Insights</CardTitle>
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <Tabs defaultValue="summary" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="summary">Summary</TabsTrigger>
-            <TabsTrigger value="hourly">Hourly</TabsTrigger>
-            <TabsTrigger value="zoneWise">Zone-wise</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 bg-gray-800 mb-6">
+            <TabsTrigger 
+              value="summary" 
+              className="data-[state=active]:bg-slate-600 data-[state=active]:text-white hover:bg-gray-700"
+            >
+              <ChartBarIcon className="w-5 h-5 mr-2" /> Summary
+            </TabsTrigger>
+            <TabsTrigger 
+              value="hourly" 
+              className="data-[state=active]:bg-slate-600 data-[state=active]:text-white hover:bg-gray-700"
+            >
+              <ClockIcon className="w-5 h-5 mr-2" /> Hourly
+            </TabsTrigger>
+            <TabsTrigger 
+              value="zoneWise" 
+              className="data-[state=active]:bg-slate-600 data-[state=active]:text-white hover:bg-gray-700"
+            >
+              <MapPinIcon className="w-5 h-5 mr-2" /> Zone-wise
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="summary">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <h3 className="text-lg font-semibold">Total Daily Demand</h3>
-                <p className="text-2xl font-bold">{getTotalDailyDemand()} MWh</p>
+              <div className="p-6 rounded-lg shadow-md border border-gray-300">
+                <div className="flex items-center mb-4">
+                  <BoltIcon className="w-6 h-6 text-blue-400 mr-3" />
+                  <h3 className="text-lg font-semibold text-black dark:text-white">Total Daily Demand</h3>
+                </div>
+                <span className="text-3xl font-bold text-black"><p className="dark:text-white">{getTotalDailyDemand()}</p> <span className="text-xl text-gray-400">MWh</span></span>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold">Peak Demand</h3>
-                <p className="text-2xl font-bold">{getPeakDemand().demand} MWh</p>
-                <p>at {getPeakDemand().hour}:00</p>
+              <div className="p-6 rounded-lg shadow-md border border-gray-300">
+                <div className="flex items-center mb-4">
+                  <CloudIcon className="w-6 h-6 text-blue-400 mr-3" />
+                  <h3 className="text-lg font-semibold text-black dark:text-white">Peak Demand</h3>
+                </div>
+                <span className="text-3xl font-bold text-black dark:text-white">{getPeakDemand().demand} <span className="text-xl text-gray-400">MWh</span></span>
+                <p className="text-sm text-gray-500">at {getPeakDemand().hour}:00</p>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold">Off-Peak Demand</h3>
-                <p className="text-2xl font-bold">{getOffPeakDemand().demand} MWh</p>
-                <p>at {getOffPeakDemand().hour}:00</p>
+              <div className=" p-6 rounded-lg shadow-md border border-gray-300">
+                <div className="flex items-center mb-4 dark:text-white">
+                  <ClockIcon className="w-6 h-6 text-blue-400 mr-3" />
+                  <h3 className="text-lg font-semibold text-black dark:text-white">Off-Peak Demand</h3>
+                </div>
+                <p className="text-3xl font-bold text-black dark:text-white">{getOffPeakDemand().demand} <span className="text-xl text-gray-400">MWh</span></p>
+                <p className="text-sm text-gray-500">at {getOffPeakDemand().hour}:00</p>
               </div>
             </div>
           </TabsContent>
           <TabsContent value="hourly">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={data} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis
                   dataKey="hour"
                   tickFormatter={(value) => `${value}:00`}
                   interval="preserveStartEnd"
                   minTickGap={20}
+                  tick={{ fill: 'text-gray-900 dark:text-white' }}
                 />
-                <YAxis />
-                <Tooltip formatter={(value: number | null) => (value === null ? "N/A" : `${value.toFixed(2)} MW`)} />
+                <YAxis  tick={{ fill: 'text-gray-900 dark:text-white' }}  />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgb(31, 41, 55)', 
+                    color: 'white', 
+                    border: '1px solid rgb(55, 65, 81)' 
+                  }}
+                  formatter={(value: number | null) => (value === null ? "N/A" : `${value.toFixed(2)} MW`)} 
+                />
                 <Legend />
-                <Line type="monotone" dataKey="total" stroke="#8884d8" name="Total Demand" connectNulls />
+                <Line type="monotone" dataKey="total" stroke="#3B82F6" name="Total Demand" connectNulls strokeWidth={3} />
               </LineChart>
             </ResponsiveContainer>
           </TabsContent>
           <TabsContent value="zoneWise">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={getZoneWiseBreakdown()} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="zone" />
-                <YAxis
-                  domain={[0, maxZoneValue * 1.1]} // Set domain from 0 to 110% of max value for some padding
-                  tickFormatter={(value) => `${Math.round(value)}`}
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis 
+                  dataKey="zone" 
+                  tick={{ fill: 'text-gray-900 dark:text-white' }} 
                 />
-                <Tooltip formatter={(value) => `${value} MWh`} />
+                <YAxis
+                  domain={[0, maxZoneValue * 1.1]}
+                  tickFormatter={(value) => `${Math.round(value)}`}
+                  tick={{ fill: 'text-gray-900 dark:text-white' }}
+                  axisLine={{ stroke: '#6B7280' }}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1F2937', color: 'white', border: '1px solid #374151' }}
+                  formatter={(value) => `${value} MWh`} 
+                />
                 <Legend />
-                <Bar dataKey="total" fill="#8884d8" />
+                <Bar dataKey="total" fill="#3B82F6" />
               </BarChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -195,4 +245,3 @@ export default function InsightsPanel({ date }: InsightsPanelProps) {
     </Card>
   )
 }
-
